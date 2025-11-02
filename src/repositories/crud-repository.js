@@ -3,15 +3,8 @@ class CrudRepository{
         this.model = model
     }
     create =  async(data)=>{
-        console.log(this.model);
-        
-        try {
-            const response = await this.model.create(data);
-            return response
-        } catch (error) {
-            console.log("Error in creating flight",error)
-            throw error
-        }
+        const response = await this.model.create(data);
+        return response
 
     }
     getAll = async()=>{
