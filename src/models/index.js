@@ -40,4 +40,6 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db;
+const Airplane = require('./airplane')(sequelize, Sequelize.DataTypes)
+
+module.exports = {db,Airplane};
