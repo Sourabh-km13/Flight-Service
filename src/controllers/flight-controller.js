@@ -1,6 +1,8 @@
 const { StatusCodes } = require("http-status-codes");
 const { FlightService } = require("../services");
-const { failResponse } = require("../utils/common");
+const { failResponse ,successResponse } = require("../utils/common");
+const AppError = require("../utils/errors/app-error");
+
 
 
 async function createFlight (req, res){
@@ -17,11 +19,50 @@ async function createFlight (req, res){
             error:{}
         })
     } catch (error) {
-        failResponse.error = error
-        return res.status(error.statusCode).json({
-            failResponse
-        })
+        if(error instanceof AppError){
+            failResponse.data = error
+            res.status(error.statusCode).json({
+                failResponse
+            })
+        }
+        else{
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                failResponse
+            })
+        }
     }
 }
+async function getAirplanes(req,res){
+    try {
+        const response = await FlightService.getAirplanes()
+        successResponse.data = response
+        return res.status(StatusCodes.OK).json(successResponse)
+        
+    } catch (error) {
+        failResponse.error = error
+        return res.status(error.statusCode).json(failResponse)
+        
+    }
 
-module.exports = {createFlight}
+}
+
+/**
+ * GET /:id
+ * req.body= {}
+ * 
+ */
+async function getAirplane(req,res){
+    try {
+        const response = await FlightService.getAirplane(req.params.id)
+        successResponse.data = response
+        return res.status(StatusCodes.OK).json(successResponse)
+        
+    } catch (error) {
+        failResponse.error = error
+        return res.status(error.statusCode).json(failResponse)
+        
+    }
+
+}
+
+module.exports = {createFlight ,getAirplanes , getAirplane}

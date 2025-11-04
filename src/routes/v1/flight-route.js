@@ -7,5 +7,7 @@ const flightRouter = express.Router()
 
 
 flightRouter.post("/",validateCreateRequest,FlightController.createFlight)
+flightRouter.get("/",FlightController.getAirplanes)
+flightRouter.get("/:id",FlightController.getAirplane)
 
-module.exports =flightRouter
+module.exports =flightRouter    
