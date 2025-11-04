@@ -27,8 +27,8 @@ class CrudRepository {
     }
     destroy = async (id) => {
         const response = await this.model.destroy({
-            where:{
-                id:id
+            where: {
+                id: id
             }
         })
         if (!response) {
@@ -36,7 +36,20 @@ class CrudRepository {
         }
         return response
     }
-
+    update = async (id, property) => {
+        await this.get(id)
+        const updateResponse = await this.model.update(
+            property,
+            {
+                where: {
+                    id: id,
+                },
+            });
+        if (!updateResponse[0]) {
+            throw new AppError("Can not update the given properties", StatusCodes.BAD_REQUEST)
+        }
+        return updateResponse
+    }
 
 }
 

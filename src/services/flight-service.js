@@ -63,4 +63,24 @@ async function destroyAirplane(id){
     }
 }
 
-module.exports = {createAirplane, getAirplanes, getAirplane, destroyAirplane}
+async function updateAirplane(id , property){
+    
+    try {
+        console.log("calling updateairplane");
+        const airplane = await flightRepository.update(id,property)
+        return airplane
+    } catch (error) {
+        console.log("catching error in serivce",error)
+        if(error.statusCode === StatusCodes.NOT_FOUND){
+            console.log("throwing");
+            throw new AppError("The airplane you requested to update does not exist",error.statusCode)
+            
+        }
+        if(error.statusCode === StatusCodes.BAD_REQUEST){
+            throw new AppError("The properties you requested to update does not exist",error.statusCode)
+        }
+        throw new AppError("Something went wrong",StatusCodes.INTERNAL_SERVER_ERROR)
+    }
+}
+
+module.exports = {createAirplane, getAirplanes, getAirplane, destroyAirplane, updateAirplane}
