@@ -52,4 +52,15 @@ async function getAirplane(id){
             
 }
 
-module.exports = {createAirplane, getAirplanes, getAirplane}
+async function destroyAirplane(id){
+    try {
+        const airplane = await flightRepository.destroy(id)
+        return airplane
+    } catch (error) {
+        if(error.statusCode === StatusCodes.NOT_FOUND){
+            throw new AppError("The airplane you requested to delete does not exist",error.statusCode)
+        }
+    }
+}
+
+module.exports = {createAirplane, getAirplanes, getAirplane, destroyAirplane}

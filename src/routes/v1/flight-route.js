@@ -9,5 +9,6 @@ const flightRouter = express.Router()
 flightRouter.post("/",validateCreateRequest,FlightController.createFlight)
 flightRouter.get("/",FlightController.getAirplanes)
 flightRouter.get("/:id",FlightController.getAirplane)
+flightRouter.delete("/:id",FlightController.destroyAirplane)
 
 module.exports =flightRouter    
