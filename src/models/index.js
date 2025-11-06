@@ -41,5 +41,6 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 const Airplane = require('./airplane')(sequelize, Sequelize.DataTypes)
+const Cities = require('./city')(sequelize, Sequelize.DataTypes)
 
-module.exports = {db,Airplane};
+module.exports = {db,Airplane, Cities};
