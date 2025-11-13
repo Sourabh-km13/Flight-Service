@@ -1,14 +1,14 @@
 const { StatusCodes } = require("http-status-codes");
-const { FlightService } = require("../services");
+const { AirplaneService } = require("../services");
 const { failResponse ,successResponse } = require("../utils/common");
 const AppError = require("../utils/errors/app-error");
 
 
 
-async function createFlight (req, res){
+async function createAirplane (req, res){
     console.log(req.body)
     try {
-        const response = await FlightService.createAirplane({
+        const response = await AirplaneService.createAirplane({
             modelNumber:req.body.modelNumber,
             capacity:req.body.capacity
         })
@@ -34,7 +34,7 @@ async function createFlight (req, res){
 }
 async function getAirplanes(req,res){
     try {
-        const response = await FlightService.getAirplanes()
+        const response = await AirplaneService.getAirplanes()
         successResponse.data = response
         return res.status(StatusCodes.OK).json(successResponse)
         
@@ -53,7 +53,7 @@ async function getAirplanes(req,res){
  */
 async function getAirplane(req,res){
     try {
-        const response = await FlightService.getAirplane(req.params.id)
+        const response = await AirplaneService.getAirplane(req.params.id)
         successResponse.data = response
         return res.status(StatusCodes.OK).json(successResponse)
         
@@ -71,7 +71,7 @@ async function getAirplane(req,res){
  */
 async function destroyAirplane(req,res){
     try {
-        const response = await FlightService.destroyAirplane(req.params.id)
+        const response = await AirplaneService.destroyAirplane(req.params.id)
         successResponse.data = response
         return res.status(StatusCodes.OK).json(successResponse)
         
@@ -89,7 +89,7 @@ async function destroyAirplane(req,res){
  */
 async function updateAirplane(req,res){
     try {
-        const response = await FlightService.updateAirplane(req.params.id,req.body)
+        const response = await AirplaneService.updateAirplane(req.params.id,req.body)
 
         successResponse.data = response
         return res.status(StatusCodes.OK).json(successResponse)
@@ -102,4 +102,4 @@ async function updateAirplane(req,res){
 
 }
 
-module.exports = {createFlight ,getAirplanes , getAirplane, destroyAirplane, updateAirplane}
+module.exports = {createAirplane ,getAirplanes , getAirplane, destroyAirplane, updateAirplane}

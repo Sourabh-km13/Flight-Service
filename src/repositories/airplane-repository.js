@@ -1,10 +1,10 @@
 const { Airplane } = require("../models");
 const CrudRepository = require( "./crud-repository");
 
-class FlightRepository extends CrudRepository {
+class AirplaneRepository extends CrudRepository {
     constructor(){
         super(Airplane)
     }
 }
 
-module.exports = FlightRepository 
+module.exports = AirplaneRepository 

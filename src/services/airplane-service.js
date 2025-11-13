@@ -1,14 +1,14 @@
 const { StatusCodes } = require("http-status-codes");
-const {FlightRepository} = require("../repositories");
+const {AirplaneRepository} = require("../repositories");
 const AppError = require("../utils/errors/app-error");
 const logger = require("../config/logger-config");
 
 
-const flightRepository = new FlightRepository()
+const airplaneRepository = new AirplaneRepository()
 
 async function createAirplane(data) {
     try {
-        const airplane = await flightRepository.create(data)
+        const airplane = await airplaneRepository.create(data)
         return airplane
     } catch (error) {
         logger.error(error.name)
@@ -31,7 +31,7 @@ async function createAirplane(data) {
 }
 async function getAirplanes(){
     try {
-        const airplanes = await flightRepository.getAll()
+        const airplanes = await airplaneRepository.getAll()
         return airplanes
     } catch (error) {
         throw new AppError("cannot fetch data of all airplanes", StatusCodes.INTERNAL_SERVER_ERROR)
@@ -41,7 +41,7 @@ async function getAirplanes(){
 }
 async function getAirplane(id){
     try {
-        const airplane = await flightRepository.get(id)
+        const airplane = await airplaneRepository.get(id)
         return airplane
     } catch (error) {
         if(error.statusCode === StatusCodes.NOT_FOUND){
@@ -54,7 +54,7 @@ async function getAirplane(id){
 
 async function destroyAirplane(id){
     try {
-        const airplane = await flightRepository.destroy(id)
+        const airplane = await airplaneRepository.destroy(id)
         return airplane
     } catch (error) {
         if(error.statusCode === StatusCodes.NOT_FOUND){
@@ -67,7 +67,7 @@ async function updateAirplane(id , property){
     
     try {
         console.log("calling updateairplane");
-        const airplane = await flightRepository.update(id,property)
+        const airplane = await airplaneRepository.update(id,property)
         return airplane
     } catch (error) {
         console.log("catching error in serivce",error)
