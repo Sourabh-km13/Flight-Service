@@ -1,5 +1,6 @@
-const validateCreateReq = require("./flight-middleware");
+
 
 module.exports = {
-    validateCreateRequest:validateCreateReq
+    airplaneMiddleware : require('./airplane-middleware'),
+    airportMiddleware : require('./airport-middleware')
 }
