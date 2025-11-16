@@ -16,7 +16,7 @@ async function createAirport (req, res){
         })
         res.status(StatusCodes.CREATED).json({
             success:true,
-            message:"Created flight",
+            message:"Created airport",
             data:response,
             error:{}
         })
