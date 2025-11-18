@@ -1,5 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const { failResponse } = require("../utils/common");
+const { dateTimeChecker } = require("../utils");
 
 function validateCreateReq(req, res , next){
     if(!req.body.flightNumber){
@@ -52,5 +53,13 @@ function validateCreateReq(req, res , next){
     }
     next()
 }
-
-module.exports = validateCreateReq
+function validateArrivalTime(req, res, next){
+    if(dateTimeChecker(req.body.arrivalTime , req.body.departureTime)){
+        next()
+    }
+    else{
+        failResponse.message = "arrival time cannot be greater than departure time"
+        res.status(StatusCodes.BAD_REQUEST).json({failResponse})
+    }
+}
+module.exports = {validateCreateReq, validateArrivalTime}

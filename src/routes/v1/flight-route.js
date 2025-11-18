@@ -5,6 +5,11 @@ const express = require('express')
 
 const flightRouter = express.Router()
 
-flightRouter.post('/',flightMiddleware,FlightController.createFlight)
+flightRouter.post('/',
+    flightMiddleware.validateCreateReq,
+    flightMiddleware.validateArrivalTime,
+    FlightController.createFlight
+)
+flightRouter.get('/',FlightController.getAllFlights)
 
 module.exports = flightRouter
