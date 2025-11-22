@@ -40,9 +40,9 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-const Airplane = require('./airplane')(sequelize, Sequelize.DataTypes)
-const Cities = require('./city')(sequelize, Sequelize.DataTypes)
-const Airports = require('./airport')(sequelize, Sequelize.DataTypes)
-const Flight = require('./flight')(sequelize, Sequelize.DataTypes)
+// const Airplane = require('./airplane')(sequelize, Sequelize.DataTypes)
+// const Cities = require('./city')(sequelize, Sequelize.DataTypes)
+// const Airports = require('./airport')(sequelize, Sequelize.DataTypes)
+// const Flight = require('./flight')(sequelize, Sequelize.DataTypes)
 
-module.exports = {db,Airplane, Cities, Airports, Flight};
+module.exports = db;
