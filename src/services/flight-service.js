@@ -73,12 +73,25 @@ async function getFlight(id){
         const flight = await flightRepository.get(id)
         return flight
     } catch (error) {
-        console.log(error)
         if(error.statusCode === StatusCodes.NOT_FOUND){
             throw new AppError("The flight you requested does not exist",error.statusCode)
         }
     }
 }
+async function updateRemainingSeats(id, seat, dec){
+    try {
+        const flight = await flightRepository.updateRemainingSeats(id,seat,dec)
+        return flight
+    } catch (error) {
+        console.log(error)
+        if(error.statusCode === StatusCodes.NOT_FOUND){
+            throw new AppError("The flight you requested does not exist",error.statusCode)
+        }
+        else{
+            throw new AppError(error.message,StatusCodes.INTERNAL_SERVER_ERROR)
+        }
+    }
+}
 
-module.exports = {createFlight, getAllFlights, getFlight
+module.exports = {createFlight, getAllFlights, getFlight, updateRemainingSeats
 }

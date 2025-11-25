@@ -13,4 +13,9 @@ flightRouter.post('/',
 )
 flightRouter.get('/:id',FlightController.getFlight)
 
+flightRouter.patch('/:id',
+    flightMiddleware.validateSeatUpdate, 
+    FlightController.updateRemainingSeats
+)
+
 module.exports = flightRouter
