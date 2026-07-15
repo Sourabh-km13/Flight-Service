@@ -66,8 +66,30 @@ async function updateRemainingSeats(req, res){
         return res.status(StatusCodes.OK).json(successResponse)
     } catch (error) {
         failResponse.error = error
-        return res.status(error.statusCode).json(failResponse)
+        return res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json(failResponse)
     }
 }
 
-module.exports = {createFlight, getAllFlights, getFlight, updateRemainingSeats }
+async function updateFlight(req, res){
+    try {
+        const response = await FlightService.updateFlight(req.params.id, req.body)
+        successResponse.data = response
+        return res.status(StatusCodes.OK).json(successResponse)
+    } catch (error) {
+        failResponse.error = error
+        return res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json(failResponse)
+    }
+}
+
+async function destroyFlight(req, res){
+    try {
+        const response = await FlightService.destroyFlight(req.params.id)
+        successResponse.data = response
+        return res.status(StatusCodes.OK).json(successResponse)
+    } catch (error) {
+        failResponse.error = error
+        return res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json(failResponse)
+    }
+}
+
+module.exports = {createFlight, getAllFlights, getFlight, updateRemainingSeats, updateFlight, destroyFlight }

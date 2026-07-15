@@ -93,5 +93,32 @@ async function updateRemainingSeats(id, seat, dec){
     }
 }
 
-module.exports = {createFlight, getAllFlights, getFlight, updateRemainingSeats
+async function updateFlight(id, property){
+    try {
+        const flight = await flightRepository.update(id, property)
+        return flight
+    } catch (error) {
+        if(error.statusCode === StatusCodes.NOT_FOUND){
+            throw new AppError("The flight you requested to update does not exist",error.statusCode)
+        }
+        if(error.statusCode === StatusCodes.BAD_REQUEST){
+            throw new AppError("The properties you requested to update do not exist",error.statusCode)
+        }
+        throw new AppError("Something went wrong while updating flight",StatusCodes.INTERNAL_SERVER_ERROR)
+    }
+}
+
+async function destroyFlight(id){
+    try {
+        const flight = await flightRepository.destroy(id)
+        return flight
+    } catch (error) {
+        if(error.statusCode === StatusCodes.NOT_FOUND){
+            throw new AppError("The flight you requested to delete does not exist",error.statusCode)
+        }
+        throw new AppError("Something went wrong while deleting flight",StatusCodes.INTERNAL_SERVER_ERROR)
+    }
+}
+
+module.exports = {createFlight, getAllFlights, getFlight, updateRemainingSeats, updateFlight, destroyFlight
 }
