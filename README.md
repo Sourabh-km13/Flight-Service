@@ -2,7 +2,7 @@
 
 Core **flight catalog microservice** for FlySmart. Manages airplanes, cities, airports, flights, and seat inventory with filterable search and pessimistic locking for concurrent seat updates.
 
-**Resume highlight:** Domain microservice with relational flight graph, advanced search filters, and `SELECT … FOR UPDATE` seat inventory under transactions.
+This service is the source of truth for schedule and inventory data consumed by the booking flow and the admin CRUD portal (via the API Gateway).
 
 ---
 
@@ -22,6 +22,21 @@ This service has **no local auth layer** — the gateway is the intended securit
 
 ---
 
+## What this service does
+
+- Owns the full **flight domain model**: cities → airports → flights → airplanes → seats
+- Exposes **full CRUD** for airplanes, cities, airports, and flights for admin operations
+- Powers traveler search with filters for **trip route**, **price range**, **trip date**, and **sort**
+- Uses airport **codes** (`BOM`, `DEL`) as route identifiers so bookings can request trips like `BOM-DEL`
+- Eager-loads related airplane and departure/arrival airport data on flight reads
+- Tracks **remaining seat inventory** on each flight (`totalSeats`)
+- Applies **request validation** middleware for create-flight and seat-update payloads
+- Protects concurrent inventory changes with **transactions + `SELECT … FOR UPDATE`**
+- Supports seat decrement (booking hold) and increment (cancel / expiry restore) for the Booking Service
+- Stays independently deployable with its own MySQL database and Sequelize migrations/seeders
+
+---
+
 ## Capabilities
 
 | Area | What it does |
@@ -31,6 +46,8 @@ This service has **no local auth layer** — the gateway is the intended securit
 | Seat inventory | Patch remaining seats with row-level locks |
 | Relations | Eager-load airplane + departure/arrival airports on flight reads |
 | Validation | Middleware for create-flight and seat-update payloads |
+| Seat layout | Per-airplane seat rows/columns with cabin class enums |
+| Cross-service use | Read + seat patch used by Booking Service over HTTP |
 
 ---
 
@@ -40,6 +57,7 @@ This service has **no local auth layer** — the gateway is the intended securit
 - **ORM:** Sequelize + MySQL
 - **Logging:** Winston
 - **Errors:** http-status-codes + custom `AppError`
+- **Tooling:** sequelize-cli migrations & seeders
 
 ---
 
@@ -227,8 +245,10 @@ Point the gateway `FLIGHT_SERVICE` at this service’s base URL.
 1. **Normalized airport–city–flight graph** with code-based route identifiers (`BOM-DEL`).
 2. **Search API designed for booking UIs** (trip, price band, date, sort).
 3. **Pessimistic locking** for inventory correctness under concurrent bookings.
-4. **Clean layered architecture** (routes → controllers → services → repositories).
-5. **Gateway-compatible** — works behind both customer and admin proxy mounts.
+4. **Clear inventory API** for Booking Service (decrement on hold, restore on cancel).
+5. **Clean layered architecture** (routes → controllers → services → repositories).
+6. **Gateway-compatible** — works behind both customer and admin proxy mounts.
+7. **Independent schema ownership** — catalog DB is separate from auth and bookings.
 
 ---
 
@@ -237,7 +257,7 @@ Point the gateway `FLIGHT_SERVICE` at this service’s base URL.
 | Repo | Responsibility |
 |------|----------------|
 | [Api_Gateway_Flight](../Api_Gateway_Flight) | Auth, RBAC, proxy |
-| [Flight-booking-Service](../Flight-booking-Service) | Bookings & payment hold |
+| [Flight-booking-Service](../Flight-booking-Service) | Bookings, payment hold, RabbitMQ ticket mail |
 | [Flight-Frontend](../Flight-Frontend) | Traveler + admin UI |
 
 ---
