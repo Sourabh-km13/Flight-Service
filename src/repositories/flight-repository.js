@@ -1,11 +1,41 @@
 const { Sequelize } = require("sequelize");
 const { StatusCodes } = require("http-status-codes");
-const {Flight, Airplane, Airport} = require("../models");
+const {Flight, Airplane, Airport, City} = require("../models");
 const CrudRepository = require("./crud-repository");
 const db = require("../models");
 const { addRowLockFlights } = require("./queries");
 const AppError = require("../utils/errors/app-error");
 
+const airportCityInclude = {
+    model: City,
+    required: false,
+}
+
+const flightDetailIncludes = [
+    {
+        model: Airplane,
+        required: true,
+        as: 'AirplaneDetail',
+    },
+    {
+        model: Airport,
+        required: true,
+        on: {
+            col1: Sequelize.where(Sequelize.col("Flight.departureAirportId"), "=", Sequelize.col("DepartureAirport.code")),
+        },
+        as: 'DepartureAirport',
+        include: [airportCityInclude],
+    },
+    {
+        model: Airport,
+        required: true,
+        on: {
+            col1: Sequelize.where(Sequelize.col("Flight.arrivalAirportId"), "=", Sequelize.col("ArrivalAirport.code")),
+        },
+        as: 'ArrivalAirport',
+        include: [airportCityInclude],
+    },
+]
 
 class FlightRepository extends CrudRepository{
     constructor(){
@@ -15,31 +45,21 @@ class FlightRepository extends CrudRepository{
         const response = await Flight.findAll({
             where:filter,
             order:sort,
-            include:[
-                {
-                    model:Airplane,
-                    required:true,
-                    as:'AirplaneDetail'
-                },
-                {
-                    model:Airport,
-                    required:true,
-                    on:{
-                        col1:Sequelize.where(Sequelize.col("Flight.departureAirportId"),"=",Sequelize.col("DepartureAirport.code"))
-                    },
-                    as:'DepartureAirport'
-                },
-                {
-                    model:Airport,
-                    required:true,
-                    on:{
-                        col1:Sequelize.where(Sequelize.col("Flight.arrivalAirportId"),"=",Sequelize.col("ArrivalAirport.code"))
-                    },
-                    as:'ArrivalAirport'
-                }
-            ],
-            
+            include: flightDetailIncludes,
         })
+        return response
+    }
+    async get(id, options = {}){
+        if (options.transaction) {
+            return super.get(id, options)
+        }
+
+        const response = await Flight.findByPk(id, {
+            include: flightDetailIncludes,
+        })
+        if (!response) {
+            throw new AppError("Not able to find this resource", StatusCodes.NOT_FOUND)
+        }
         return response
     }
     async updateRemainingSeats(flightId, seats, dec=true){
@@ -74,4 +94,3 @@ class FlightRepository extends CrudRepository{
     }
 }
 module.exports = FlightRepository
-
