@@ -84,12 +84,13 @@ async function updateRemainingSeats(id, seat, dec){
         return flight
     } catch (error) {
         console.log(error)
-        if(error.statusCode === StatusCodes.NOT_FOUND){
-            throw new AppError("The flight you requested does not exist",error.statusCode)
+        if (error instanceof AppError) {
+            if (error.statusCode === StatusCodes.NOT_FOUND) {
+                throw new AppError("The flight you requested does not exist", error.statusCode)
+            }
+            throw error
         }
-        else{
-            throw new AppError(error.message,StatusCodes.INTERNAL_SERVER_ERROR)
-        }
+        throw new AppError(error.message, StatusCodes.INTERNAL_SERVER_ERROR)
     }
 }
 

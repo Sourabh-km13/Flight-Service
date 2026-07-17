@@ -1,8 +1,10 @@
 const { Sequelize } = require("sequelize");
+const { StatusCodes } = require("http-status-codes");
 const {Flight, Airplane, Airport} = require("../models");
 const CrudRepository = require("./crud-repository");
 const db = require("../models");
 const { addRowLockFlights } = require("./queries");
+const AppError = require("../utils/errors/app-error");
 
 
 class FlightRepository extends CrudRepository{
@@ -43,13 +45,25 @@ class FlightRepository extends CrudRepository{
     async updateRemainingSeats(flightId, seats, dec=true){
         const transaction = await db.sequelize.transaction()
         try {
-            await db.sequelize.query(addRowLockFlights(flightId))
-            const flight = await this.get(flightId)
-            if(!parseInt(dec)){
-                await flight.decrement('totalSeats',{by:seats},{transaction})
-            } else{
-                await flight.increment('totalSeats',{by:seats},{transaction})
+            const seatCount = Number(seats)
+            if (!Number.isInteger(seatCount) || seatCount <= 0) {
+                throw new AppError('Seat count must be a positive integer', StatusCodes.BAD_REQUEST)
             }
+
+            const { query, replacements } = addRowLockFlights(flightId)
+            await db.sequelize.query(query, { transaction, replacements })
+
+            const flight = await this.get(flightId, { transaction })
+            if (!parseInt(dec)) {
+                if (flight.totalSeats < seatCount) {
+                    throw new AppError('Not enough seats available', StatusCodes.BAD_REQUEST)
+                }
+                await flight.decrement('totalSeats', { by: seatCount, transaction })
+            } else {
+                await flight.increment('totalSeats', { by: seatCount, transaction })
+            }
+
+            await flight.reload({ transaction })
             await transaction.commit()
             return flight
         } catch (error) {

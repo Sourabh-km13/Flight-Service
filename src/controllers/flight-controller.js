@@ -65,8 +65,12 @@ async function updateRemainingSeats(req, res){
         successResponse.data = response
         return res.status(StatusCodes.OK).json(successResponse)
     } catch (error) {
+        if (error instanceof AppError) {
+            failResponse.data = error
+            return res.status(error.statusCode).json({ failResponse })
+        }
         failResponse.error = error
-        return res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json(failResponse)
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(failResponse)
     }
 }
 

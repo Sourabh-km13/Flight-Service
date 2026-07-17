@@ -1,5 +1,8 @@
 function addRowLockFlights(flightId){
-    return `Select * from flights where Flights.id = ${flightId} for update`
+    return {
+        query: 'SELECT * FROM Flights WHERE id = :flightId FOR UPDATE',
+        replacements: { flightId },
+    }
 }
 
 module.exports = {addRowLockFlights}
