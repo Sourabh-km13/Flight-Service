@@ -1,15 +1,10 @@
 const { Sequelize } = require("sequelize");
 const { StatusCodes } = require("http-status-codes");
-const {Flight, Airplane, Airport, City} = require("../models");
+const {Flight, Airplane, Airport} = require("../models");
 const CrudRepository = require("./crud-repository");
 const db = require("../models");
 const { addRowLockFlights } = require("./queries");
 const AppError = require("../utils/errors/app-error");
-
-const airportCityInclude = {
-    model: City,
-    required: false,
-}
 
 const flightDetailIncludes = [
     {
@@ -24,7 +19,6 @@ const flightDetailIncludes = [
             col1: Sequelize.where(Sequelize.col("Flight.departureAirportId"), "=", Sequelize.col("DepartureAirport.code")),
         },
         as: 'DepartureAirport',
-        include: [airportCityInclude],
     },
     {
         model: Airport,
@@ -33,7 +27,6 @@ const flightDetailIncludes = [
             col1: Sequelize.where(Sequelize.col("Flight.arrivalAirportId"), "=", Sequelize.col("ArrivalAirport.code")),
         },
         as: 'ArrivalAirport',
-        include: [airportCityInclude],
     },
 ]
 
