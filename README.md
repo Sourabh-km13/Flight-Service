@@ -4,6 +4,21 @@ Core **flight catalog microservice** for FlySmart. Manages airplanes, cities, ai
 
 This service is the source of truth for schedule and inventory data consumed by the booking flow and the admin CRUD portal (via the API Gateway).
 
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-Sequelize-4479A1?logo=mysql&logoColor=white)
+![Concurrency](https://img.shields.io/badge/Concurrency-SELECT..FOR_UPDATE-blue)
+![Winston](https://img.shields.io/badge/Logging-Winston-231F20)
+
+> **Part of the FlySmart platform** · [Overview](../README.md) · [Live demo](https://flight-frontend-eight.vercel.app/) · [Frontend](../Flight-Frontend) · [API Gateway](../Api_Gateway_Flight) · [Booking Service](../Flight-booking-Service)
+
+### Skills demonstrated
+
+- **Concurrency control** — seat inventory updates use Sequelize transactions with `SELECT … FOR UPDATE` to prevent overselling.
+- **Relational modeling** — a normalized city → airport → flight → airplane → seat graph with code-based route identifiers.
+- **Search API design** — filterable, sortable flight search (route, price band, date) built for booking UIs.
+- **Layered architecture** — routes → controllers → services → repositories → Sequelize models.
+- **Service boundaries** — an independently deployable catalog with its own schema, consumed over HTTP by the Booking Service.
+
 ---
 
 ## Role in the system
@@ -104,7 +119,7 @@ This service has **no local auth layer** — the gateway is the intended securit
 - `tripDate=2026-07-20`
 - `sort=price_ASC` (or similar sort keys supported by the service)
 
-Also: `GET /api/v1/info`
+Also: `GET /api/v1/info`, and an unauthenticated `GET /health` (outside `/api/v1`) for platform liveness checks.
 
 ---
 
@@ -205,7 +220,7 @@ so concurrent booking flows do not oversell inventory. The Booking Service calls
 
 ```text
 src/
-  config/          # PORT, sequelize config.json, logger
+  config/          # PORT + DB_* env, sequelize config.js, logger
   controllers/     # airplane, city, airport, flight
   middlewares/     # create/seat validation
   models/          # Airplane, City, Airport, Flight, Seat
@@ -222,18 +237,26 @@ src/
 
 ## Configuration & run
 
-`.env`:
+All configuration is env-driven via `.env` (loaded by `dotenv`). Sequelize reads the same values through `src/config/config.js` (no committed `config.json`).
+
 ```bash
 PORT=3000
+DB_USER=root
+DB_PASS=
+DB_NAME=database_development
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DIALECT=mysql
 ```
 
-`src/config/config.json` (Sequelize) — MySQL credentials for development/production.
+See [`.env.example`](.env.example) for the full template.
 
 ```bash
 npm install
 npx sequelize-cli db:migrate
 npx sequelize-cli db:seed:all   # optional seats sample
-npm run dev
+npm run dev      # nodemon (local)
+npm start        # node src/index.js (production)
 ```
 
 Point the gateway `FLIGHT_SERVICE` at this service’s base URL.
@@ -256,6 +279,7 @@ Point the gateway `FLIGHT_SERVICE` at this service’s base URL.
 
 | Repo | Responsibility |
 |------|----------------|
+| [FlySmart overview](../README.md) | Platform overview + live demo |
 | [Api_Gateway_Flight](../Api_Gateway_Flight) | Auth, RBAC, proxy |
 | [Flight-booking-Service](../Flight-booking-Service) | Bookings, payment hold, RabbitMQ ticket mail |
 | [Flight-Frontend](../Flight-Frontend) | Traveler + admin UI |
@@ -264,4 +288,4 @@ Point the gateway `FLIGHT_SERVICE` at this service’s base URL.
 
 ## License
 
-Private / educational project.
+Released under the MIT License.
